@@ -122,6 +122,15 @@ function tokenFrom(row) {
   };
 }
 
+function signalContextFor(row) {
+  return {
+    traderType: row.source_trader_type || "all",
+    netflowUsd: Number(row.netflow || 0),
+    priceChangePercent: Number(row.price_change || 0),
+    endpoint: "/api/v1beta1/token-screener/historical"
+  };
+}
+
 function generatePool() {
   const pool = [];
   const chainCounts = new Map();
@@ -172,7 +181,8 @@ function generateStage(pool) {
       left: tokenFrom(leftRow),
       right: tokenFrom(rightRow),
       featuredSymbol: featured.token_symbol,
-      featuredSignals: signalsFor(featured)
+      featuredSignals: signalsFor(featured),
+      featuredContext: signalContextFor(featured)
     });
     if (gates.length === 5) break;
   }

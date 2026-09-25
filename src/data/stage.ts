@@ -16,6 +16,12 @@ export type Gate = {
   right: Token;
   featuredSymbol: string;
   featuredSignals: string[];
+  featuredContext?: {
+    traderType: "sm" | "whale" | "all";
+    netflowUsd: number;
+    priceChangePercent: number;
+    endpoint: string;
+  };
 };
 
 function discoveredToken(

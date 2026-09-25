@@ -237,12 +237,28 @@ function createSignalItem(signal: string): HTMLElement {
 function renderGateCopy(gate: Gate): void {
   renderDateBanner(gate.date, "signal");
   progress.textContent = `${copy[locale].gate} ${gateIndex + 1} / ${stage.gates.length}`;
-  signalDate.textContent = `${gate.date} / ${gate.featuredSymbol} / ${copy[locale].pointInTime}`;
+  const context = gate.featuredContext;
+  const traderLabel = context
+    ? context.traderType === "sm" ? "SMART MONEY" : context.traderType === "whale" ? "WHALE" : "ALL TRADERS"
+    : copy[locale].pointInTime;
+  const metrics = context
+    ? `NETFLOW ${formatCompactUsd(context.netflowUsd)} / PRICE ${formatSignedPercent(context.priceChangePercent)}`
+    : copy[locale].pointInTime;
+  signalDate.textContent = `${gate.date} / ${gate.featuredSymbol} / ${traderLabel} / ${metrics}`;
   signalList.replaceChildren(...gate.featuredSignals.slice(0, 3).map((signal) => {
     return createSignalItem(signal);
   }));
   setChoice(leftButton, gate.left);
   setChoice(rightButton, gate.right);
+}
+
+function formatCompactUsd(value: number): string {
+  const sign = value >= 0 ? "+" : "-";
+  return `${sign}$${Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(Math.abs(value))}`;
+}
+
+function formatSignedPercent(value: number): string {
+  return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
 }
 
 function startCountdown(): void {
