@@ -1,18 +1,28 @@
-import { createReadStream, existsSync, readFileSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync, readdirSync } from "node:fs";
 import { access, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { selectRollingWindow } from "./lib/dataset.mjs";
 import { generatePool, generateStage, groupBy, tokenFrom } from "./lib/stage-generator.mjs";
 
 const root = fileURLToPath(new URL("./dist", import.meta.url));
 const port = Number(process.env.PORT || 4173);
 const cacheMs = 10 * 60 * 1000;
 const endpoint = process.env.NANSEN_API_BASE_URL || "https://api.nansen.ai/api/v1/tgm/token-ohlcv";
-const discoveryPath = fileURLToPath(new URL("./data/discovery.json", import.meta.url));
-const expandedDiscoveryPath = fileURLToPath(new URL("./data/expanded-discovery.json", import.meta.url));
-const discoveryFiles = [discoveryPath, expandedDiscoveryPath].filter(existsSync);
-const discoveryRows = discoveryFiles.flatMap((path) => JSON.parse(readFileSync(path, "utf8")).rows || []);
+const dataRoot = fileURLToPath(new URL("./data", import.meta.url));
+function findDiscoveryFiles(directory) {
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return findDiscoveryFiles(path);
+    return entry.name.endsWith(".json") ? [path] : [];
+  });
+}
+const discoveryFiles = findDiscoveryFiles(dataRoot);
+const allDiscoveryRows = discoveryFiles.flatMap((path) => JSON.parse(readFileSync(path, "utf8")).rows || []);
+const rollingDataset = selectRollingWindow(allDiscoveryRows);
+const discoveryRows = rollingDataset.rows;
 const excludedSymbolParts = ["USD", "WETH", "WEETH", "OSETH", "WBTC", "CBBTC", "CBETH", "WSTETH", "JUPSOL", "JITOSOL", "IETH"];
 const candidateKeys = new Set();
 const candidates = discoveryRows.filter((row) => {
@@ -124,6 +134,13 @@ async function getRunData() {
     creditsUsed: results.reduce((sum, result) => sum + result.creditsUsed, 0),
     creditsRemaining: results.map((result) => result.creditsRemaining).filter(Boolean).at(-1) || null,
     skippedTokens: missingSymbols,
+    historicalDataset: {
+      earliestDate: rollingDataset.earliestDate,
+      latestDate: rollingDataset.latestDate,
+      cutoffDate: rollingDataset.cutoffDate,
+      rollingDays: rollingDataset.rollingDays,
+      files: discoveryFiles.length
+    },
     source: "POST /api/v1/tgm/token-ohlcv"
   };
 }
