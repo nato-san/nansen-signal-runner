@@ -82,9 +82,9 @@ Never commit your real API key. `.env` and `.env.local` are ignored by Git.
 
 ## Replay And Credit Use
 
-The server loads the included historical discovery datasets and prepares a pool of up to 24 eligible tokens. The first run fetches the pool's current prices in chain-level batches, normally at most three Nansen calls. Prices are cached for ten minutes.
+The server loads the included historical discovery datasets and prepares a pool of up to 24 eligible tokens. The first run fetches the pool's current prices in chain-level batches, normally at most three Nansen calls, and prepares 20 randomized stages from that price snapshot.
 
-During that cache window, replaying generates a different five-gate stage from the pool without another price call. When the cache expires, a new pool and current-price snapshot are fetched.
+On Vercel, the price snapshot and stage set are cached at the CDN for ten minutes. Each browser randomly selects one of the 20 stages, so replays can differ without another Nansen price call. Local development also keeps a ten-minute in-memory price cache. When the cache expires, a new pool and current-price snapshot are fetched.
 
 If live prices are unavailable, the interface explicitly labels the result as a historical fallback. It never presents fallback data as live.
 
@@ -147,6 +147,18 @@ The production game evaluates positions against the current Nansen price. Histor
 - Vite
 - Node.js server
 - Nansen API
+
+## Deploy To Vercel
+
+The repository includes Vercel Functions for `/api/run-data` and `/api/admin-status`, plus a rewrite for the multi-page `/admin` route.
+
+1. Import the GitHub repository into Vercel.
+2. Keep the detected framework as Vite, build command as `npm run build`, and output directory as `dist`.
+3. Add `NANSEN_API_KEY` as a Production environment variable in Vercel. Do not prefix it with `VITE_`.
+4. Deploy, then verify `/admin` reports live pricing as configured.
+5. Start one run and confirm the result is labeled as a live Nansen valuation.
+
+`vercel.json` includes the historical JSON library in both serverless functions. Live run payloads use a ten-minute Vercel CDN cache so a warm price snapshot can serve randomized replays without repeatedly spending Nansen credits.
 
 ## Security
 

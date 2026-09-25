@@ -409,7 +409,8 @@ async function loadValuationSnapshot(): Promise<void> {
     const response = await fetch("/api/run-data", { headers: { Accept: "application/json" } });
     const payload = await response.json();
     if (!response.ok || payload.mode !== "live") throw new Error(payload.message || "Live prices unavailable");
-    setStage(payload.stage);
+    const stages = Array.isArray(payload.stages) && payload.stages.length ? payload.stages : [payload.stage];
+    setStage(stages[Math.floor(Math.random() * stages.length)]);
     valuationSnapshot = {
       mode: "live",
       asOf: payload.asOf,
