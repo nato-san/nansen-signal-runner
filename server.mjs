@@ -200,8 +200,6 @@ async function getRunData() {
   if (!poolCache || nowMs - poolCache.cachedAt >= cacheMs) {
     poolCache = { rows: generatePool(), cachedAt: nowMs };
   }
-  const stage = generateStage(poolCache.rows);
-  const stageTokens = stage.gates.flatMap((gate) => [gate.left, gate.right]);
   const poolTokens = poolCache.rows.map(tokenFrom);
   const freshPrices = {};
   const staleByChain = {};
@@ -228,9 +226,11 @@ async function getRunData() {
       priceCache.set(`${token.chain}:${token.address.toLowerCase()}`, { price, cachedAt: nowMs });
     }
   }
-  const expectedSymbols = stageTokens.map((token) => token.symbol);
-  const missing = expectedSymbols.filter((symbol) => !Number.isFinite(prices[symbol]));
-  if (missing.length) throw new Error(`No recent Nansen price for: ${missing.join(", ")}`);
+  const availableRows = poolCache.rows.filter((row) => Number.isFinite(prices[row.token_symbol]));
+  const missingSymbols = poolCache.rows
+    .filter((row) => !Number.isFinite(prices[row.token_symbol]))
+    .map((row) => row.token_symbol);
+  const stage = generateStage(availableRows);
 
   return {
     mode: "live",
@@ -240,6 +240,7 @@ async function getRunData() {
     cacheHit: Object.keys(staleByChain).length === 0,
     creditsUsed: results.reduce((sum, result) => sum + result.creditsUsed, 0),
     creditsRemaining: results.map((result) => result.creditsRemaining).filter(Boolean).at(-1) || null,
+    skippedTokens: missingSymbols,
     source: "POST /api/v1/tgm/token-ohlcv"
   };
 }
