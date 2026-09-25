@@ -1,0 +1,23 @@
+{
+  "name": "nansen-runner-prototype",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A replayable Nansen-powered token runner game for the Meridian Buildathon.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5"
+  }
+}
