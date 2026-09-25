@@ -561,6 +561,9 @@ def main() -> int:
     parser.add_argument("--mode", choices=["discover", "verify", "full"], default="discover")
     parser.add_argument("--goal-date", default="2026-08-31")
     parser.add_argument("--gate-dates", default="2026-08-25,2026-08-26,2026-08-27,2026-08-28,2026-08-29")
+    parser.add_argument("--rolling-days", type=int, default=0, help="Generate historical gate dates over this many days.")
+    parser.add_argument("--interval-days", type=int, default=14, help="Spacing used with --rolling-days.")
+    parser.add_argument("--as-of-date", default=date.today().isoformat(), help="Newest date used with --rolling-days.")
     parser.add_argument("--chains", default=",".join(DEFAULT_CHAINS))
     parser.add_argument("--per-page", type=int, default=20)
     parser.add_argument("--trader-types", default="sm,whale,all")
@@ -577,7 +580,20 @@ def main() -> int:
     args = parser.parse_args()
 
     goal_date = parse_date(args.goal_date)
-    gate_dates = [parse_date(item.strip()) for item in args.gate_dates.split(",") if item.strip()]
+    if args.rolling_days:
+        if args.rolling_days < 1 or args.interval_days < 1:
+            parser.error("--rolling-days and --interval-days must be positive")
+        newest_date = parse_date(args.as_of_date)
+        oldest_date = newest_date - timedelta(days=args.rolling_days)
+        gate_dates = []
+        cursor = oldest_date
+        while cursor <= newest_date:
+            gate_dates.append(cursor)
+            cursor += timedelta(days=args.interval_days)
+        if gate_dates[-1] != newest_date:
+            gate_dates.append(newest_date)
+    else:
+        gate_dates = [parse_date(item.strip()) for item in args.gate_dates.split(",") if item.strip()]
     chains = [item.strip() for item in args.chains.split(",") if item.strip()]
     trader_types = [item.strip() for item in args.trader_types.split(",") if item.strip()]
     symbols = [item.strip().upper() for item in args.symbols.split(",") if item.strip()]

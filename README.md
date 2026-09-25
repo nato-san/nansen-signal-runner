@@ -103,6 +103,26 @@ python3 scripts/nansen_runner_data_poc.py \
 
 Add `--yes-spend` only after reviewing the estimate.
 
+### Administrator Snapshot Refresh
+
+Historical purchase data is a maintained snapshot library, not a per-play API expense. The server recursively loads JSON files under `data/` and automatically limits gameplay to the 183 days ending at the newest available snapshot. Adding a newer file therefore moves the playable window forward; a 2028 refresh can include 2027-2028 purchases without changing the game code.
+
+Preview a six-month refresh at two-week intervals without making API calls:
+
+```bash
+python3 scripts/nansen_runner_data_poc.py \
+  --mode discover \
+  --rolling-days 183 \
+  --interval-days 14 \
+  --as-of-date 2026-09-25 \
+  --trader-types all \
+  --chains solana,base,ethereum \
+  --per-page 10 \
+  --out-dir data/snapshots/2026-09-25
+```
+
+Review the estimated calls and credits, then append `--yes-spend` to perform the administrator refresh. Commit the generated snapshot JSON, but never the API key. Future refreshes should use a new dated output directory.
+
 ## Look-Ahead Bias
 
 Gate signals and buy prices come only from the historical snapshot assigned to that gate. No data after the gate date is shown before the player chooses. The later price is used only during the final reveal.
