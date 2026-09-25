@@ -51,6 +51,16 @@ Open the URL printed in the terminal, normally [http://127.0.0.1:4173](http://12
 
 Use the left/right arrow keys or tap a token gate. Japanese and English are available from the language control.
 
+## Tests
+
+Run the deterministic Stage Generator checks:
+
+```bash
+npm test
+```
+
+The tests enforce the core replay rules: five distinct historical dates, ten unique tokens, chronological gates, and point-in-time signal direction.
+
 To use another port:
 
 ```bash
