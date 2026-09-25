@@ -20,7 +20,8 @@ function findDiscoveryFiles(directory) {
   });
 }
 const discoveryFiles = findDiscoveryFiles(dataRoot);
-const allDiscoveryRows = discoveryFiles.flatMap((path) => JSON.parse(readFileSync(path, "utf8")).rows || []);
+const discoveryDocuments = discoveryFiles.map((path) => JSON.parse(readFileSync(path, "utf8")));
+const allDiscoveryRows = discoveryDocuments.flatMap((document) => document.rows || []);
 const rollingDataset = selectRollingWindow(allDiscoveryRows);
 const discoveryRows = rollingDataset.rows;
 const excludedSymbolParts = ["USD", "WETH", "WEETH", "OSETH", "WBTC", "CBBTC", "CBETH", "WSTETH", "JUPSOL", "JITOSOL", "IETH"];
@@ -41,6 +42,49 @@ const candidates = discoveryRows.filter((row) => {
 const candidatesByDate = groupBy(candidates, (row) => row.gate_date);
 const priceCache = new Map();
 let poolCache;
+
+function getAdminStatus() {
+  const now = new Date();
+  const latestSnapshotMs = rollingDataset.latestDate
+    ? Date.parse(`${rollingDataset.latestDate}T00:00:00Z`)
+    : Number.NaN;
+  const ageDays = Number.isFinite(latestSnapshotMs)
+    ? Math.max(0, Math.floor((now.getTime() - latestSnapshotMs) / (24 * 60 * 60 * 1000)))
+    : null;
+  const generatedAt = discoveryDocuments
+    .map((document) => document.generated_at)
+    .filter(Boolean)
+    .sort()
+    .at(-1) || null;
+  const historicalCalls = discoveryDocuments
+    .flatMap((document) => document.api_call_summary || [])
+    .filter((call) => call.status >= 200 && call.status < 300).length;
+
+  return {
+    mode: "read-only",
+    generatedAt,
+    historicalWindow: {
+      earliestDate: rollingDataset.earliestDate,
+      latestDate: rollingDataset.latestDate,
+      cutoffDate: rollingDataset.cutoffDate,
+      rollingDays: rollingDataset.rollingDays,
+      ageDays,
+      stale: ageDays === null || ageDays > 45
+    },
+    inventory: {
+      files: discoveryFiles.length,
+      snapshotDates: candidatesByDate.size,
+      eligibleTokens: new Set(candidates.map((row) => `${row.chain}:${row.token_address}`)).size,
+      chains: [...new Set(candidates.map((row) => row.chain))].sort()
+    },
+    api: {
+      historicalSuccessfulCalls: historicalCalls,
+      livePricingConfigured: Boolean(process.env.NANSEN_API_KEY),
+      liveEndpoint: "POST /api/v1/tgm/token-ohlcv",
+      historicalEndpoint: "POST /api/v1beta1/token-screener/historical"
+    }
+  };
+}
 
 function json(response, status, body) {
   response.writeHead(status, {
@@ -157,7 +201,7 @@ const mimeTypes = {
 async function serveStatic(request, response) {
   const requestPath = new URL(request.url, `http://${request.headers.host}`).pathname;
   const safePath = normalize(requestPath).replace(/^(\.\.(\/|\\|$))+/, "");
-  let filePath = join(root, safePath === "/" ? "index.html" : safePath);
+  let filePath = join(root, safePath === "/" ? "index.html" : safePath === "/admin" ? "admin.html" : safePath);
   try {
     await access(filePath);
     if ((await stat(filePath)).isDirectory()) filePath = join(filePath, "index.html");
@@ -169,6 +213,10 @@ async function serveStatic(request, response) {
 }
 
 createServer(async (request, response) => {
+  if (request.method === "GET" && request.url === "/api/admin-status") {
+    json(response, 200, getAdminStatus());
+    return;
+  }
   if (request.method === "GET" && request.url === "/api/run-data") {
     try {
       json(response, 200, await getRunData());

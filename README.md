@@ -51,6 +51,8 @@ Open the URL printed in the terminal, normally [http://127.0.0.1:4173](http://12
 
 Use the left/right arrow keys or tap a token gate. Japanese and English are available from the language control.
 
+The read-only data status page is available at `/admin`. It reports the historical window, candidate inventory, snapshot freshness, recorded historical API calls, and whether live pricing is configured. Dataset updates remain terminal-only; the page has no write controls and never receives the API key.
+
 ## Tests
 
 Run the deterministic Stage Generator checks:
