@@ -30,9 +30,9 @@ Deadline: September 27, 2026 at 23:59 UTC (September 28 at 08:59 JST)
 ## Publishing
 
 - [ ] Push the reviewed commit history to the public GitHub repository.
-- [ ] Adapt the Node endpoint for Vercel serverless deployment.
-- [ ] Configure `NANSEN_API_KEY` only in Vercel environment variables.
-- [ ] Deploy and verify the public end-to-end demo.
+- [x] Adapt the Node endpoint for Vercel serverless deployment.
+- [x] Configure `NANSEN_API_KEY` only in Vercel environment variables.
+- [x] Deploy and verify the public end-to-end demo.
 - [ ] Confirm that the browser bundle and public repository contain no API key.
 
 ## Submission

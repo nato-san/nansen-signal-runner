@@ -4,6 +4,10 @@
 
 Nansen Signal Runner is a replayable hypercasual game built for the Nansen Meridian Buildathon. Read a point-in-time onchain signal, choose one of two tokens under time pressure, then reveal what each $10 purchase is worth at the latest Nansen price.
 
+**Live demo:** [nansen-signal-runner.vercel.app](https://nansen-signal-runner.vercel.app)
+
+**Dataset status:** [nansen-signal-runner.vercel.app/admin](https://nansen-signal-runner.vercel.app/admin)
+
 Every run changes the purchase dates, tokens, signal focus, and left/right placement. Historical Nansen data generates the stage; live Nansen OHLCV prices determine the result and boss outcome.
 
 ## Current Build Status
@@ -13,7 +17,7 @@ Every run changes the purchase dates, tokens, signal focus, and left/right place
 - Rolling 183-day historical library: implemented
 - Read-only dataset status page at `/admin`: working
 - Automated Stage Generator and dataset tests: passing
-- Public deployment: pending
+- Public Vercel deployment with live Nansen valuation: verified
 
 ## How Nansen Drives the Game
 
