@@ -14,14 +14,18 @@ Deadline: September 27, 2026 at 23:59 UTC (September 28 at 08:59 JST)
 - [x] Show signal provenance, netflow, and price momentum at each gate.
 - [x] Skip tokens without a recent live price instead of failing the whole run.
 - [x] Add automated tests for core stage-generation rules.
+- [x] Verify replay diversity across 100 generated stages.
+- [x] Add a rolling 183-day historical snapshot library.
+- [x] Add a read-only `/admin` dataset health dashboard.
+- [x] Verify live Nansen valuation end to end in the local game.
 
 ## Before Publishing
 
 - [ ] Playtest repeated runs on desktop and mobile widths.
-- [ ] Verify candidate diversity and date spread across at least 20 generated stages.
+- [x] Verify candidate diversity and date spread across at least 20 generated stages.
 - [ ] Improve the fallback screen and API error messaging.
 - [ ] Review all public files for secrets and private local paths.
-- [ ] Run the complete test and production build checks.
+- [x] Run the complete test and production build checks.
 
 ## Publishing
 

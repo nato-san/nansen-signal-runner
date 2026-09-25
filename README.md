@@ -6,6 +6,15 @@ Nansen Signal Runner is a replayable hypercasual game built for the Nansen Merid
 
 Every run changes the purchase dates, tokens, signal focus, and left/right placement. Historical Nansen data generates the stage; live Nansen OHLCV prices determine the result and boss outcome.
 
+## Current Build Status
+
+- End-to-end five-gate gameplay: working
+- Live Nansen valuation at run start: verified locally
+- Rolling 183-day historical library: implemented
+- Read-only dataset status page at `/admin`: working
+- Automated Stage Generator and dataset tests: passing
+- Public deployment: pending
+
 ## How Nansen Drives the Game
 
 Nansen data is part of the game logic, not decorative UI:
@@ -61,7 +70,7 @@ Run the deterministic Stage Generator checks:
 npm test
 ```
 
-The tests enforce the core replay rules: five distinct historical dates, ten unique tokens, chronological gates, and point-in-time signal direction.
+The tests enforce the core replay rules: five distinct historical dates, ten unique tokens, chronological gates, point-in-time signal direction, rolling-window selection, and replay diversity across the bundled Nansen snapshots.
 
 To use another port:
 
