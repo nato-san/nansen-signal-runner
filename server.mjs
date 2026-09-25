@@ -150,10 +150,17 @@ function generatePool() {
 
 function generateStage(pool) {
   const poolByDate = groupBy(pool, (row) => row.gate_date);
-  const dates = [...poolByDate.keys()];
+  const dates = shuffle(
+    [...poolByDate.entries()]
+      .filter(([, rows]) => rows.length >= 2)
+      .map(([date]) => date)
+  );
+  if (dates.length < 5) {
+    throw new Error(`Need 5 distinct historical dates, but only ${dates.length} are eligible`);
+  }
   const usedSymbols = new Set();
   const gates = [];
-  for (const date of shuffle([...dates, ...dates]).slice(0, 8)) {
+  for (const date of dates) {
     const available = shuffle(poolByDate.get(date) || []).filter((row) => !usedSymbols.has(row.token_symbol));
     if (available.length < 2) continue;
     const [leftRow, rightRow] = available;
@@ -169,7 +176,7 @@ function generateStage(pool) {
     });
     if (gates.length === 5) break;
   }
-  if (gates.length < 5) throw new Error("Not enough eligible historical candidates");
+  if (gates.length < 5) throw new Error("Not enough unique tokens across 5 distinct historical dates");
   gates.sort((a, b) => a.date.localeCompare(b.date));
   return {
     goalDate: new Date().toISOString().slice(0, 10),
