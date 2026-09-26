@@ -3,7 +3,7 @@ import { access, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getAdminStatus, getRunData } from "./lib/runtime.mjs";
+import { getAdminStatus, getPublicRunError, getRunData } from "./lib/runtime.mjs";
 
 const root = fileURLToPath(new URL("./dist", import.meta.url));
 const port = Number(process.env.PORT || 4173);
@@ -44,7 +44,8 @@ createServer(async (request, response) => {
     try {
       json(response, 200, await getRunData());
     } catch (error) {
-      json(response, 503, { mode: "unavailable", message: error instanceof Error ? error.message : "Live prices unavailable" });
+      console.error("Live Nansen pricing failed", error instanceof Error ? error.name : "UnknownError");
+      json(response, 503, getPublicRunError());
     }
     return;
   }

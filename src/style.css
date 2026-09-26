@@ -326,6 +326,31 @@ h1 {
 .live-status.loading { color: var(--yellow); }
 .live-status.live { color: var(--green); background: rgb(98 245 141 / 10%); }
 .live-status.fallback { color: var(--red); background: rgb(255 79 100 / 10%); }
+.fallback-actions {
+  max-width: 430px;
+  margin-top: 12px;
+  padding: 12px;
+  border-left: 4px solid var(--red);
+  background: rgb(255 79 100 / 10%);
+}
+.fallback-actions strong { color: var(--red); font-size: 12px; }
+.fallback-actions p { margin: 6px 0 10px; color: #d9dee1; font-size: 11px; line-height: 1.45; }
+.fallback-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.secondary-action,
+.text-action {
+  min-height: 38px;
+  padding: 8px 11px;
+  border-radius: 3px;
+  font-family: "Arial Black", Impact, sans-serif;
+  font-size: 10px;
+  cursor: pointer;
+}
+.secondary-action { color: var(--ink); background: var(--cyan); border: 2px solid var(--ink); }
+.text-action { color: var(--paper); background: transparent; border: 2px solid #687178; }
+.secondary-action:hover,
+.secondary-action:focus-visible,
+.text-action:hover,
+.text-action:focus-visible { transform: translateY(-2px); }
 .controls-hint { display: block; margin-top: 18px; color: #8a949b; font-size: 10px; }
 
 .reveal {

@@ -1,4 +1,4 @@
-import { getRunData } from "../lib/runtime.mjs";
+import { getPublicRunError, getRunData } from "../lib/runtime.mjs";
 
 export async function GET() {
   try {
@@ -9,8 +9,9 @@ export async function GET() {
       }
     });
   } catch (error) {
+    console.error("Live Nansen pricing failed", error instanceof Error ? error.name : "UnknownError");
     return Response.json(
-      { mode: "unavailable", message: error instanceof Error ? error.message : "Live prices unavailable" },
+      getPublicRunError(),
       { status: 503, headers: { "Cache-Control": "no-store" } }
     );
   }

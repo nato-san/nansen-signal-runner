@@ -31,3 +31,15 @@ test("serverless runtime builds 20 stages from a mocked live Nansen snapshot", a
     else process.env.NANSEN_API_KEY = originalKey;
   }
 });
+
+test("public live-price failures do not expose internal error details", async () => {
+  const { getPublicRunError } = await import(`../lib/runtime.mjs?error=${Date.now()}`);
+  const payload = getPublicRunError(new Error("secret upstream detail"));
+  assert.deepEqual(payload, {
+    mode: "unavailable",
+    code: "LIVE_PRICE_UNAVAILABLE",
+    message: "Live Nansen prices are temporarily unavailable.",
+    retryable: true
+  });
+  assert.doesNotMatch(JSON.stringify(payload), /secret upstream detail/);
+});

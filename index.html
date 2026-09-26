@@ -57,6 +57,14 @@
             <p id="intro-body">Read the signal. Pick a token. Do not ask what happens next.</p>
             <button class="primary-action" id="start-button" type="button">START RUN</button>
             <div class="live-status" id="live-status" aria-live="polite"></div>
+            <div class="fallback-actions is-hidden" id="fallback-actions" role="alert">
+              <strong id="fallback-title">LIVE PRICE CHECK FAILED</strong>
+              <p id="fallback-body">This run has not started. Retry Nansen or continue with a clearly labeled historical demo.</p>
+              <div class="fallback-buttons">
+                <button class="secondary-action" id="retry-button" type="button">RETRY LIVE PRICE</button>
+                <button class="text-action" id="fallback-button" type="button">PLAY HISTORICAL DEMO</button>
+              </div>
+            </div>
             <span class="controls-hint" id="controls-hint">Arrow keys or tap a gate</span>
           </div>
         </section>

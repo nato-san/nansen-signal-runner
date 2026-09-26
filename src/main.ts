@@ -25,6 +25,11 @@ const asOfBanner = document.querySelector<HTMLElement>("#as-of-banner")!;
 const asOfLabel = document.querySelector<HTMLElement>("#as-of-label")!;
 const asOfDate = document.querySelector<HTMLElement>("#as-of-date")!;
 const liveStatus = document.querySelector<HTMLElement>("#live-status")!;
+const fallbackActions = document.querySelector<HTMLElement>("#fallback-actions")!;
+const fallbackTitle = document.querySelector<HTMLElement>("#fallback-title")!;
+const fallbackBody = document.querySelector<HTMLElement>("#fallback-body")!;
+const retryButton = document.querySelector<HTMLButtonElement>("#retry-button")!;
+const fallbackButton = document.querySelector<HTMLButtonElement>("#fallback-button")!;
 
 type Locale = "en" | "ja";
 type ValuationMode = "live" | "fallback";
@@ -58,6 +63,10 @@ const copy = {
     liveReady: "LIVE PRICES LOCKED",
     cacheReady: "LIVE PRICES LOCKED · CACHE HIT",
     fallbackReady: "LIVE PRICE UNAVAILABLE · HISTORICAL DEMO",
+    fallbackTitle: "LIVE PRICE CHECK FAILED",
+    fallbackBody: "This run has not started. Retry Nansen or continue with a clearly labeled historical demo.",
+    retry: "RETRY LIVE PRICE",
+    continueFallback: "PLAY HISTORICAL DEMO",
     liveHint: "3 API calls max · 10 minute server cache",
     controls: "Arrow keys or tap a gate",
     revealKicker: "GOAL / AUG 31",
@@ -90,6 +99,10 @@ const copy = {
     liveReady: "ライブ価格を固定しました",
     cacheReady: "ライブ価格を固定 · キャッシュ使用",
     fallbackReady: "ライブ価格を取得できません · 過去デモ",
+    fallbackTitle: "ライブ価格を確認できません",
+    fallbackBody: "ゲームはまだ始まっていません。Nansenへの接続を再試行するか、過去価格デモとして続けてください。",
+    retry: "ライブ価格を再試行",
+    continueFallback: "過去価格デモで続ける",
     liveHint: "最大3 API calls · サーバーで10分キャッシュ",
     controls: "矢印キー、またはゲートをタップ",
     revealKicker: "ゴール / 8月31日",
@@ -359,7 +372,18 @@ function applyLocale(nextLocale: Locale): void {
   document.querySelector<HTMLElement>("#reveal-kicker")!.textContent = text.revealKicker;
   document.querySelector<HTMLElement>("#reveal-heading")!.textContent = text.revealHeading;
   restartButton.textContent = text.restart;
-  document.querySelector<HTMLElement>("#data-stamp")!.textContent = intro.classList.contains("is-hidden")
+  fallbackTitle.textContent = text.fallbackTitle;
+  fallbackBody.textContent = text.fallbackBody;
+  retryButton.textContent = text.retry;
+  fallbackButton.textContent = text.continueFallback;
+  const showingFallbackPrompt = !fallbackActions.classList.contains("is-hidden");
+  if (showingFallbackPrompt) {
+    liveStatus.className = "live-status fallback";
+    liveStatus.textContent = text.fallbackReady;
+  }
+  document.querySelector<HTMLElement>("#data-stamp")!.textContent = showingFallbackPrompt
+    ? text.fallbackReady
+    : intro.classList.contains("is-hidden")
     ? valuationSnapshot.mode === "live"
       ? valuationSnapshot.cacheHit ? text.cacheReady : text.liveReady
       : text.fallbackReady
@@ -400,8 +424,11 @@ function startRun(): void {
   showGate(stage.gates[0]);
 }
 
-async function loadValuationSnapshot(): Promise<void> {
+async function loadValuationSnapshot(): Promise<boolean> {
+  fallbackActions.classList.add("is-hidden");
+  startButton.classList.remove("is-hidden");
   startButton.disabled = true;
+  retryButton.disabled = true;
   startButton.textContent = copy[locale].connecting;
   liveStatus.className = "live-status loading";
   liveStatus.textContent = copy[locale].liveHint;
@@ -423,32 +450,48 @@ async function loadValuationSnapshot(): Promise<void> {
     document.querySelector<HTMLElement>("#data-stamp")!.textContent = valuationSnapshot.cacheHit
       ? copy[locale].cacheReady
       : copy[locale].liveReady;
+    return true;
   } catch {
     valuationSnapshot = createFallbackSnapshot();
+    startButton.classList.add("is-hidden");
     liveStatus.className = "live-status fallback";
     liveStatus.textContent = copy[locale].fallbackReady;
     document.querySelector<HTMLElement>("#data-stamp")!.textContent = copy[locale].fallbackReady;
+    fallbackActions.classList.remove("is-hidden");
+    return false;
   } finally {
     startButton.disabled = false;
+    retryButton.disabled = false;
     startButton.textContent = copy[locale].start;
   }
 }
 
 async function prepareAndStart(): Promise<void> {
-  await loadValuationSnapshot();
-  window.setTimeout(startRun, 900);
+  if (await loadValuationSnapshot()) window.setTimeout(startRun, 900);
+}
+
+function startHistoricalFallback(): void {
+  valuationSnapshot = createFallbackSnapshot();
+  fallbackActions.classList.add("is-hidden");
+  liveStatus.className = "live-status fallback";
+  liveStatus.textContent = copy[locale].fallbackReady;
+  document.querySelector<HTMLElement>("#data-stamp")!.textContent = copy[locale].fallbackReady;
+  window.setTimeout(startRun, 100);
 }
 
 async function restart(): Promise<void> {
   getScene().resetWorld();
-  await loadValuationSnapshot();
-  window.setTimeout(startRun, 100);
+  reveal.classList.add("is-hidden");
+  intro.classList.remove("is-hidden");
+  if (await loadValuationSnapshot()) window.setTimeout(startRun, 100);
 }
 
 leftButton.addEventListener("click", () => choose("left"));
 rightButton.addEventListener("click", () => choose("right"));
 startButton.addEventListener("click", prepareAndStart);
 restartButton.addEventListener("click", () => void restart());
+retryButton.addEventListener("click", () => void prepareAndStart());
+fallbackButton.addEventListener("click", startHistoricalFallback);
 languageEn.addEventListener("click", () => applyLocale("en"));
 languageJa.addEventListener("click", () => applyLocale("ja"));
 window.addEventListener("keydown", (event) => {
