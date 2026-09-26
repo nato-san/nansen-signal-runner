@@ -21,7 +21,7 @@
 
 ## Before Publishing / 公開前
 
-- [ ] Playtest repeated runs on desktop and mobile widths. / デスクトップ幅とモバイル幅で繰り返しプレイテストする。
+- [x] Playtest repeated runs on desktop and mobile widths. / デスクトップ幅とモバイル幅で繰り返しプレイテストする。
 - [x] Verify candidate diversity and date spread across at least 20 generated stages. / 20以上の生成ステージで候補の多様性と日付の広がりを検証する。
 - [ ] Improve the fallback screen and API error messaging. / フォールバック画面とAPIエラー表示を改善する。
 - [x] Review all public files for secrets and private local paths. / すべての公開ファイルに秘密情報やローカルの個人パスがないか確認する。
