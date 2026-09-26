@@ -25,6 +25,7 @@ test("serverless runtime builds 20 stages from a mocked live Nansen snapshot", a
     assert.equal(result.stages.length, 20);
     assert.ok(result.stages.every((stage) => stage.gates.length === 5));
     assert.ok(result.creditsUsed > 0);
+    assert.equal("creditsRemaining" in result, false);
   } finally {
     globalThis.fetch = originalFetch;
     if (originalKey === undefined) delete process.env.NANSEN_API_KEY;

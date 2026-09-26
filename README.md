@@ -46,7 +46,7 @@ Live game evaluation:
 
 - `POST /api/v1/tgm/token-ohlcv`
 
-The browser never receives the API key. `server.mjs` reads `NANSEN_API_KEY` and calls Nansen server-side.
+The browser never receives the API key. The server-side runtime reads `NANSEN_API_KEY` and calls Nansen through `server.mjs` locally or Vercel Functions in production.
 
 ### Run Locally
 
@@ -230,7 +230,7 @@ Nansenの過去データがなければステージは生成できず、Nansen�
 
 - `POST /api/v1/tgm/token-ohlcv`
 
-ブラウザへAPIキーを渡すことはありません。`server.mjs`が`NANSEN_API_KEY`を読み取り、サーバー側からNansen APIを呼び出します。
+ブラウザへAPIキーを渡すことはありません。サーバー側ランタイムが`NANSEN_API_KEY`を読み取り、ローカルでは`server.mjs`、本番ではVercel FunctionsからNansen APIを呼び出します。
 
 ### ローカルでの起動
 
