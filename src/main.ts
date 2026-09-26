@@ -60,8 +60,7 @@ const copy = {
     introBody: "Read the signal. Pick a token. Do not ask what happens next.",
     start: "START RUN",
     connecting: "CONNECTING TO NANSEN...",
-    liveReady: "LIVE PRICES LOCKED",
-    cacheReady: "LIVE PRICES LOCKED · CACHE HIT",
+    liveReady: "LIVE PRICES LOCKED · UP TO 3 NANSEN CREDITS",
     fallbackReady: "LIVE PRICE UNAVAILABLE · HISTORICAL DEMO",
     fallbackTitle: "LIVE PRICE CHECK FAILED",
     fallbackBody: "This run has not started. Retry Nansen or continue with a clearly labeled historical demo.",
@@ -96,8 +95,7 @@ const copy = {
     introBody: "シグナルを読め。トークンを選べ。その先は聞くな。",
     start: "走り出す",
     connecting: "NANSENに接続中...",
-    liveReady: "ライブ価格を固定しました",
-    cacheReady: "ライブ価格を固定 · キャッシュ使用",
+    liveReady: "ライブ価格を固定 · 最大3 NANSEN CREDITS",
     fallbackReady: "ライブ価格を取得できません · 過去デモ",
     fallbackTitle: "ライブ価格を確認できません",
     fallbackBody: "ゲームはまだ始まっていません。Nansenへの接続を再試行するか、過去価格デモとして続けてください。",
@@ -385,7 +383,7 @@ function applyLocale(nextLocale: Locale): void {
     ? text.fallbackReady
     : intro.classList.contains("is-hidden")
     ? valuationSnapshot.mode === "live"
-      ? valuationSnapshot.cacheHit ? text.cacheReady : text.liveReady
+      ? text.liveReady
       : text.fallbackReady
     : text.dataStamp;
 
@@ -446,10 +444,8 @@ async function loadValuationSnapshot(): Promise<boolean> {
       creditsUsed: Number(payload.creditsUsed || 0)
     };
     liveStatus.className = "live-status live";
-    liveStatus.textContent = valuationSnapshot.cacheHit ? copy[locale].cacheReady : `${copy[locale].liveReady} · ${valuationSnapshot.creditsUsed} CREDITS`;
-    document.querySelector<HTMLElement>("#data-stamp")!.textContent = valuationSnapshot.cacheHit
-      ? copy[locale].cacheReady
-      : copy[locale].liveReady;
+    liveStatus.textContent = copy[locale].liveReady;
+    document.querySelector<HTMLElement>("#data-stamp")!.textContent = copy[locale].liveReady;
     return true;
   } catch {
     valuationSnapshot = createFallbackSnapshot();

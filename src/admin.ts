@@ -51,9 +51,10 @@ async function loadStatus(): Promise<void> {
     setText("live-endpoint", api.liveEndpoint);
 
     banner.className = `status-banner ${historicalWindow.stale ? "stale" : "fresh"}`;
+    const latestDataDate = formatDate(historicalWindow.latestDate);
     banner.textContent = historicalWindow.stale
-      ? `更新推奨：最新スナップショットから${historicalWindow.ageDays ?? "?"}日経過`
-      : `正常：最新スナップショットは${historicalWindow.ageDays ?? 0}日前`;
+      ? `更新推奨：最新データ基準日 ${latestDataDate}（${historicalWindow.ageDays ?? "?"}日前）`
+      : `正常：最新データ基準日 ${latestDataDate}（${historicalWindow.ageDays ?? 0}日前）`;
   } catch {
     banner.className = "status-banner stale";
     banner.textContent = "データ状況を取得できません";
