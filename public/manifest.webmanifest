@@ -1,0 +1,24 @@
+{
+  "name": "Nansen Signal Runner",
+  "short_name": "Nansen Runner",
+  "description": "Choose tokens from point-in-time Nansen signals and reveal their value at the latest Nansen price.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090a0c",
+  "theme_color": "#090a0c",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
