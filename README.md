@@ -174,6 +174,10 @@ The repository includes Vercel Functions for `/api/run-data` and `/api/admin-sta
 - Public error responses never include internal upstream details.
 - Historical datasets contain market data only.
 
+### Development Disclosure
+
+This project was developed with assistance from ChatGPT and Codex for planning, implementation, testing, and documentation. Product decisions, API credential management, data review, playtesting, and final submission responsibility remain with the project owner.
+
 ### Disclaimer
 
 This is a game and a historical data experiment, not financial advice.
@@ -353,6 +357,10 @@ APIコール数とクレジットの見積もりを確認し、`--yes-spend`を�
 - ライブデータはサーバー側から取得する
 - 公開エラー応答に上流の内部情報を含めない
 - 過去データセットには市場データだけを保存する
+
+### 開発情報
+
+このプロジェクトでは、企画、実装、テスト、文書作成の支援にChatGPTおよびCodexを使用しました。製品上の判断、API認証情報の管理、データの確認、プレイテスト、最終提出の責任はプロジェクト所有者が担います。
 
 ### 免責事項
 
